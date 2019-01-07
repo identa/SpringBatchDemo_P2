@@ -43,5 +43,5 @@ public class Customer {
                 ", lastName='" + lastName + '\'' +
                 ", birthdate=" + birthdate +
                 '}';
-    }git
+    }
 }
