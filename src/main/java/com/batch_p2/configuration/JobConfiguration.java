@@ -71,10 +71,24 @@ public class JobConfiguration {
     }
 
     @Bean
+    public CompositeItemProcessor<Customer, Customer> compositeItemProcessor() throws Exception{
+        List<ItemProcessor<Customer, Customer>> processorList = new ArrayList<>(2);
+        processorList.add(new PotentialCustomerItemProcessor());
+        processorList.add(new UpperCaseItemProcessor());
+
+        CompositeItemProcessor<Customer, Customer> processor = new CompositeItemProcessor<>();
+        processor.setDelegates(processorList);
+        processor.afterPropertiesSet();
+
+        return processor;
+
+    }
+    @Bean
     public Step step1() throws Exception{
         return stepBuilderFactory.get("step1")
                 .<Customer, Customer>chunk(10)
                 .reader(customerItemReader())
+                .processor(compositeItemProcessor())
                 .writer(customerItemWriter())
                 .build();
     }
