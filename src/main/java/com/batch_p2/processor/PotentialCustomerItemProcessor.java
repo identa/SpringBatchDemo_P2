@@ -24,6 +24,4 @@ public class PotentialCustomerItemProcessor implements ItemProcessor<Customer, C
         return customer;
         else return null;
     }
-
-
 }

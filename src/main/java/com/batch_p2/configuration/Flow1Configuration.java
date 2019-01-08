@@ -37,7 +37,7 @@ public class Flow1Configuration {
     public DataSource dataSource;
 
     @Bean
-    public FlatFileItemReader<Customer> flatFileItemReader()throws Exception {
+    public FlatFileItemReader<Customer> flatFileItemReader() throws Exception {
         FlatFileItemReader<Customer> reader = new FlatFileItemReader<>();
 
         reader.setLinesToSkip(1);
@@ -46,7 +46,7 @@ public class Flow1Configuration {
         DefaultLineMapper<Customer> customerLineMapper = new DefaultLineMapper<>();
 
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setNames(new String[] {"id", "firstName", "lastName", "birthdate"});
+        tokenizer.setNames(new String[]{"id", "firstName", "lastName", "birthdate"});
 
         customerLineMapper.setLineTokenizer(tokenizer);
         customerLineMapper.setFieldSetMapper(new CustomerFieldSetMapper());
@@ -58,7 +58,7 @@ public class Flow1Configuration {
     }
 
     @Bean
-    public JdbcBatchItemWriter<Customer> jdbcBatchItemWriter() throws Exception{
+    public JdbcBatchItemWriter<Customer> jdbcBatchItemWriter() throws Exception {
         JdbcBatchItemWriter<Customer> itemWriter = new JdbcBatchItemWriter<>();
 
         itemWriter.setDataSource(this.dataSource);
@@ -70,7 +70,7 @@ public class Flow1Configuration {
     }
 
     @Bean
-    public CompositeItemProcessor<Customer, Customer> compositeItemProcessor() throws Exception{
+    public CompositeItemProcessor<Customer, Customer> compositeItemProcessor() throws Exception {
         List<ItemProcessor<Customer, Customer>> processorList = new ArrayList<>(2);
         processorList.add(new PotentialCustomerItemProcessor());
         processorList.add(new UpperCaseItemProcessor());
@@ -82,8 +82,9 @@ public class Flow1Configuration {
         return processor;
 
     }
+
     @Bean
-    public Step step1() throws Exception{
+    public Step step1() throws Exception {
         return stepBuilderFactory.get("step1")
                 .<Customer, Customer>chunk(10)
                 .reader(flatFileItemReader())
@@ -93,7 +94,7 @@ public class Flow1Configuration {
     }
 
     @Bean
-    public Flow flow1() throws Exception{
+    public Flow flow1() throws Exception {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow1");
 
         flowBuilder.start(step1())
