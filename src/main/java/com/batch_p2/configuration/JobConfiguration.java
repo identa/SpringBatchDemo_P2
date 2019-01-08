@@ -1,23 +1,29 @@
 package com.batch_p2.configuration;
 
 import com.batch_p2.model.Customer;
+import com.batch_p2.processor.PotentialCustomerItemProcessor;
+import com.batch_p2.processor.UpperCaseItemProcessor;
 import com.batch_p2.utils.CustomerFieldSetMapper;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
@@ -65,7 +71,7 @@ public class JobConfiguration {
     }
 
     @Bean
-    public Step step1() {
+    public Step step1() throws Exception{
         return stepBuilderFactory.get("step1")
                 .<Customer, Customer>chunk(10)
                 .reader(customerItemReader())
@@ -74,7 +80,7 @@ public class JobConfiguration {
     }
 
     @Bean
-    public Job job() {
+    public Job job() throws Exception{
         return jobBuilderFactory.get("job")
                 .start(step1())
                 .build();
