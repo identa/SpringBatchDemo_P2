@@ -46,7 +46,7 @@ public class Flow1Configuration {
         DefaultLineMapper<Customer> customerLineMapper = new DefaultLineMapper<>();
 
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setNames(new String[]{"id", "firstName", "lastName", "birthdate"});
+        tokenizer.setNames(new String[]{"firstName", "lastName", "birthdate"});
 
         customerLineMapper.setLineTokenizer(tokenizer);
         customerLineMapper.setFieldSetMapper(new CustomerFieldSetMapper());
@@ -62,7 +62,7 @@ public class Flow1Configuration {
         JdbcBatchItemWriter<Customer> itemWriter = new JdbcBatchItemWriter<>();
 
         itemWriter.setDataSource(this.dataSource);
-        itemWriter.setSql("INSERT INTO CUSTOMER VALUES (:id, :firstName, :lastName, :birthdate)");
+        itemWriter.setSql("INSERT INTO CUSTOMER (firstName, lastName, birthdate) VALUES (:firstName, :lastName, :birthdate)");
         itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
         itemWriter.afterPropertiesSet();
 

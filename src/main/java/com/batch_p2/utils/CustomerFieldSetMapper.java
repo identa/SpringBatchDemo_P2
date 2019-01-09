@@ -10,7 +10,7 @@ public class CustomerFieldSetMapper implements FieldSetMapper<Customer> {
 
 	@Override
 	public Customer mapFieldSet(FieldSet fieldSet) throws BindException {
-		return new Customer(fieldSet.readLong("id"),
+		return new Customer(
 				fieldSet.readString("firstName"),
 				fieldSet.readString("lastName"),
 				fieldSet.readDate("birthdate", "yyyy-MM-dd HH:mm:ss"));

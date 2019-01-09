@@ -39,12 +39,11 @@ public class Flow2Configuration {
         reader.setDataSource(this.dataSource);
         reader.setFetchSize(10);
         reader.setRowMapper((resultSet, i) ->
-                new Customer(resultSet.getLong("id"),
+                new Customer(
                 resultSet.getString("firstName"),
                 resultSet.getString("lastName"),
                 resultSet.getDate("birthdate")));
-        reader.setSql("select * from customer");
-
+        reader.setSql("select firstName, lastName, birthdate from customer");
         return reader;
     }
 
@@ -57,10 +56,10 @@ public class Flow2Configuration {
         DelimitedLineAggregator<Customer> aggregator = new DelimitedLineAggregator<>();
         aggregator.setDelimiter(DelimitedLineTokenizer.DELIMITER_COMMA);
         BeanWrapperFieldExtractor<Customer> extractor = new BeanWrapperFieldExtractor<>();
-        extractor.setNames(new String[]{"id", "firstName", "lastName", "birthdate"});
+        extractor.setNames(new String[]{"firstName", "lastName", "birthdate"});
         aggregator.setFieldExtractor(extractor);
         itemWriter.setLineAggregator(aggregator);
-        itemWriter.setHeaderCallback(writer -> writer.write("id,firstName,lastName,birthdate"));
+        itemWriter.setHeaderCallback(writer -> writer.write("firstName,lastName,birthdate"));
 
         return itemWriter;
     }
