@@ -7,6 +7,7 @@ import com.batch_p2.utils.CustomerFieldSetMapper;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
@@ -37,6 +38,7 @@ public class Flow1Configuration {
     public DataSource dataSource;
 
     @Bean
+    @StepScope
     public FlatFileItemReader<Customer> flatFileItemReader() throws Exception {
         FlatFileItemReader<Customer> reader = new FlatFileItemReader<>();
 
@@ -58,6 +60,7 @@ public class Flow1Configuration {
     }
 
     @Bean
+    @StepScope
     public JdbcBatchItemWriter<Customer> jdbcBatchItemWriter() throws Exception {
         JdbcBatchItemWriter<Customer> itemWriter = new JdbcBatchItemWriter<>();
 
@@ -86,9 +89,9 @@ public class Flow1Configuration {
     @Bean
     public Step step1() throws Exception {
         return stepBuilderFactory.get("step1")
-                .<Customer, Customer>chunk(10)
+                .<Customer, Customer>chunk(100)
                 .reader(flatFileItemReader())
-                .processor(compositeItemProcessor())
+//                .processor(compositeItemProcessor())
                 .writer(jdbcBatchItemWriter())
                 .build();
     }

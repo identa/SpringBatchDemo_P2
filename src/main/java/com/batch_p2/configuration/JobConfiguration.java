@@ -19,11 +19,14 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.sql.DataSource;
 
@@ -51,7 +54,6 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
     @Autowired
     public JobExplorer jobExplorer;
 
-
     private ApplicationContext applicationContext;
 
     @Bean
@@ -60,7 +62,8 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
                 .start(flow1)
-                .next(flow2)
+                .on("COMPLETED")
+                .to(flow2)
                 .end()
                 .build();
     }
@@ -87,7 +90,7 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
         try {
             jobLauncher = new SimpleJobLauncher();
             jobLauncher.setJobRepository(jobRepository);
-            jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+            jobLauncher.setTaskExecutor(new SyncTaskExecutor());
             jobLauncher.afterPropertiesSet();
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,4 +112,17 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
 
         return simpleJobOperator;
     }
+
+//    @Bean
+//    public ThreadPoolTaskExecutor taskExecutor(){
+//
+//    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//    executor.setAllowCoreThreadTimeOut(true);
+//    executor.setCorePoolSize(100);
+//    executor.setMaxPoolSize(100);
+//    executor.setQueueCapacity(100);
+//
+//    return executor;
+
+//    }
 }
