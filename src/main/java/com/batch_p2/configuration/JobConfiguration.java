@@ -113,16 +113,4 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
         return simpleJobOperator;
     }
 
-//    @Bean
-//    public ThreadPoolTaskExecutor taskExecutor(){
-//
-//    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//    executor.setAllowCoreThreadTimeOut(true);
-//    executor.setCorePoolSize(100);
-//    executor.setMaxPoolSize(100);
-//    executor.setQueueCapacity(100);
-//
-//    return executor;
-
-//    }
 }

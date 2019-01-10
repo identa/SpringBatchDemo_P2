@@ -90,7 +90,7 @@ public class Flow2Configuration {
     @Bean
     public Step step2() throws Exception {
         return stepBuilderFactory.get("step2")
-                .<Customer, Customer>chunk(1000)
+                .<Customer, Customer>chunk(100)
                 .reader(jdbcCursorItemReader(null, null))
                 .writer(flatFileItemWriter())
                 .build();
@@ -101,7 +101,7 @@ public class Flow2Configuration {
         return stepBuilderFactory.get("step3")
                 .partitioner(step2().getName(), partitioner())
                 .step(step2())
-                .gridSize(1)
+                .gridSize(4)
                 .taskExecutor(new SyncTaskExecutor())
                 .build();
     }
