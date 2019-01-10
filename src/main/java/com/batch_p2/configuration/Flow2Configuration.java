@@ -101,7 +101,7 @@ public class Flow2Configuration {
         return stepBuilderFactory.get("step3")
                 .partitioner(step2().getName(), partitioner())
                 .step(step2())
-                .gridSize(4)
+                .gridSize(20)
                 .taskExecutor(new SyncTaskExecutor())
                 .build();
     }

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -89,10 +90,11 @@ public class Flow1Configuration {
     @Bean
     public Step step1() throws Exception {
         return stepBuilderFactory.get("step1")
-                .<Customer, Customer>chunk(100)
+                .<Customer, Customer>chunk(100000)
                 .reader(flatFileItemReader())
-//                .processor(compositeItemProcessor())
+                .processor(compositeItemProcessor())
                 .writer(jdbcBatchItemWriter())
+                .taskExecutor(new SimpleAsyncTaskExecutor())
                 .build();
     }
 

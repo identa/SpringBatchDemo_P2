@@ -112,5 +112,4 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
 
         return simpleJobOperator;
     }
-
 }

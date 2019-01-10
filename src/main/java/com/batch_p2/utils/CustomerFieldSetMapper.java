@@ -13,6 +13,6 @@ public class CustomerFieldSetMapper implements FieldSetMapper<Customer> {
 		return new Customer(
 				fieldSet.readString("firstName"),
 				fieldSet.readString("lastName"),
-				fieldSet.readDate("birthdate", "yyyy-MM-dd HH:mm:ss"));
+				fieldSet.readDate("birthdate", "yyyy-MM-dd"));
 	}
 }
