@@ -1,21 +1,27 @@
 package com.batch_p2.configuration;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.converter.DefaultJobParametersConverter;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.JobStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -54,14 +61,23 @@ public class JobConfiguration extends DefaultBatchConfigurer implements Applicat
     @Autowired
     public JobExplorer jobExplorer;
 
+    @Autowired
+    public Job launchingJob;
+
     private ApplicationContext applicationContext;
 
     @Bean
-    public Job job(@Qualifier("flow1") Flow flow1, @Qualifier("flow2") Flow flow2) {
+    public Job job(@Qualifier("flow1") Flow flow1, @Qualifier("flow2") Flow flow2, JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        Step launchingJobStep = new JobStepBuilder(new StepBuilder("launchingJobStep"))
+                .job(launchingJob)
+                .launcher(jobLauncher)
+                .repository(jobRepository)
+                .transactionManager(transactionManager)
+                .build();
 
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
-                .start(flow1)
+                .start(launchingJobStep)
                 .on("COMPLETED")
                 .to(flow2)
                 .end()

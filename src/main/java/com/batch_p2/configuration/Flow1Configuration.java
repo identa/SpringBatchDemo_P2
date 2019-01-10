@@ -4,12 +4,18 @@ import com.batch_p2.model.Customer;
 import com.batch_p2.processor.PotentialCustomerItemProcessor;
 import com.batch_p2.processor.UpperCaseItemProcessor;
 import com.batch_p2.utils.CustomerFieldSetMapper;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -17,7 +23,9 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.CompositeItemProcessor;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -106,5 +114,49 @@ public class Flow1Configuration {
                 .end();
 
         return flowBuilder.build();
+    }
+
+    @Bean
+    public JobExecutionDecider decider() {
+        return new ScheduledDecider();
+    }
+
+    @Bean
+    @StepScope
+    public Tasklet tasklet(@Value("#{jobParameters['name']}") String name) {
+        return (stepContribution, chunkContext) -> {
+            System.out.println(String.format("The job ran in %s", name));
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    public static class ScheduledDecider implements JobExecutionDecider {
+
+        @Override
+        public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
+            if (jobExecution.getJobId() != 1) return new FlowExecutionStatus("LAUNCHED");
+            else return new FlowExecutionStatus("UNLAUNCHED");
+        }
+    }
+
+    @Bean
+    @StepScope
+    public Step step4() {
+        return stepBuilderFactory.get("step4")
+                .tasklet(tasklet(null))
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public Job launchingJob() throws Exception{
+        return jobBuilderFactory.get("launchingJob")
+                .start(step4())
+                .next(decider())
+                .from(decider())
+                .on("LAUNCHED")
+                .to(step1())
+                .end()
+                .build();
     }
 }
