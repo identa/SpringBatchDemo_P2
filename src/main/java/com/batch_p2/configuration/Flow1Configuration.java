@@ -56,7 +56,7 @@ public class Flow1Configuration {
         customerLineMapper.afterPropertiesSet();
 
         reader.setLineMapper(customerLineMapper);
-
+        System.out.println("read in "+ Thread.currentThread());
         return reader;
     }
 
@@ -94,6 +94,7 @@ public class Flow1Configuration {
                 .reader(flatFileItemReader())
                 .processor(compositeItemProcessor())
                 .writer(jdbcBatchItemWriter())
+                .readerIsTransactionalQueue()
                 .taskExecutor(new SimpleAsyncTaskExecutor())
                 .build();
     }
