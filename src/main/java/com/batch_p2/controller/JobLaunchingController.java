@@ -14,7 +14,7 @@ public class JobLaunchingController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void launch(@RequestParam("name") String name) throws Exception {
-        if (name == "job")
+//        if (name == "job")
         this.jobOperator.start("job", String.format("name=%s", name));
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.launch.JobInstanceAlreadyExistsException;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
@@ -134,7 +136,7 @@ public class Flow1Configuration {
 
         @Override
         public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
-            if (jobExecution.getJobId() != 1) return new FlowExecutionStatus("LAUNCHED");
+            if (jobExecution.getJobId() != 2) return new FlowExecutionStatus("LAUNCHED");
             else return new FlowExecutionStatus("UNLAUNCHED");
         }
     }
@@ -151,11 +153,14 @@ public class Flow1Configuration {
     @StepScope
     public Job launchingJob() throws Exception{
         return jobBuilderFactory.get("launchingJob")
-                .start(step4())
+                .incrementer(new RunIdIncrementer())
+                .start(step4()).preventRestart()
                 .next(decider())
-                .from(decider())
-                .on("LAUNCHED")
+                .on("UNLAUNCHED")
                 .to(step1())
+                .next(decider())
+                .on("LAUNCHED")
+                .end()
                 .end()
                 .build();
     }

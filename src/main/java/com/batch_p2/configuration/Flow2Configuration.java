@@ -45,11 +45,11 @@ public class Flow2Configuration {
             @Value("#{stepExecutionContext['minValue']}") Long minValue,
             @Value("#{stepExecutionContext['maxValue']}") Long maxValue
     ) throws Exception, JobExecutionException {
-        System.out.println("reading " + minValue + " to " + maxValue);
+        System.out.println("reading " + minValue + " to " + maxValue +" in " + Thread.currentThread());
 
         JdbcCursorItemReader<Customer> reader = new JdbcCursorItemReader<>();
         reader.setDataSource(this.dataSource);
-        reader.setFetchSize(100);
+        reader.setFetchSize(100000);
         reader.setRowMapper((resultSet, i) ->
                 new Customer(
                 resultSet.getString("firstName"),
@@ -90,7 +90,7 @@ public class Flow2Configuration {
     @Bean
     public Step step2() throws Exception {
         return stepBuilderFactory.get("step2")
-                .<Customer, Customer>chunk(100)
+                .<Customer, Customer>chunk(100000)
                 .reader(jdbcCursorItemReader(null, null))
                 .writer(flatFileItemWriter())
                 .build();
