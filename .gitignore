@@ -12,7 +12,7 @@
 
 ### IntelliJ IDEA ###
 .idea/
-
+output/
 ### NetBeans ###
 /nbproject/private/
 /build/
