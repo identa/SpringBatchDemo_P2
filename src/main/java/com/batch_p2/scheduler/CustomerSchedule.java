@@ -10,7 +10,7 @@ public class CustomerSchedule {
     @Autowired
     public JobOperator jobOperator;
 
-    @Scheduled(fixedDelay = 5000l)
+    @Scheduled(cron = "*/5 * * * * *")
     public void runJob() throws Exception{
         this.jobOperator.startNextInstance("job");
     }

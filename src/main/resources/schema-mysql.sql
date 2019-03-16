@@ -1,7 +1,10 @@
-CREATE TABLE IF NOT EXISTS `customer` (
-  `id` mediumint(8) unsigned NOT NULL auto_increment,
-  `firstName` varchar(255) default NULL,
-  `lastName` varchar(255) default NULL,
-  `birthdate` varchar(255),
-  PRIMARY KEY (`id`)
-  ) AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `campaign` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NULL,
+  `statusID` INT NULL,
+  `startDate` DATE NULL,
+  `endDate` DATE NULL,
+  `budget` DOUBLE NULL,
+  `bid` DOUBLE NULL,
+  PRIMARY KEY (`id`));
