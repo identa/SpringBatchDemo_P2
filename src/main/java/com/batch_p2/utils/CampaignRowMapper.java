@@ -12,8 +12,8 @@ public class CampaignRowMapper implements RowMapper<Campaign> {
         return new Campaign(resultSet.getInt("id"),
                 resultSet.getString("name"),
                 resultSet.getInt("statusID"),
-                resultSet.getDate("startDate"),
-                resultSet.getDate("endDate"),
+                resultSet.getDate("start_date"),
+                resultSet.getDate("end_date"),
                 resultSet.getDouble("budget"),
                 resultSet.getDouble("bid"));
     }

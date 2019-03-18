@@ -16,11 +16,13 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -30,17 +32,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
 @EnableBatchProcessing
 public class CampaignConfig extends DefaultBatchConfigurer implements ApplicationContextAware {
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
+//    @Autowired
+//    public JobBuilderFactory jobBuilderFactory;
 
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+//    @Autowired
+//    public StepBuilderFactory stepBuilderFactory;
 
     @Autowired
     public DataSource dataSource;
@@ -51,8 +55,8 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
     @Autowired
     public JobRegistry jobRegistry;
 
-    @Autowired
-    public JobLauncher jobLauncher;
+//    @Autowired
+//    public JobLauncher jobLauncher;
 
     @Autowired
     public JobExplorer jobExplorer;
@@ -69,7 +73,7 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
         reader.setRowMapper(new CampaignRowMapper());
 
         MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider();
-        queryProvider.setSelectClause("id, name, statusID, startDate, endDate, budget, bid");
+        queryProvider.setSelectClause("id, name, statusID, start_date, end_date, budget, bid");
         queryProvider.setFromClause("from campaign");
         queryProvider.setWhereClause("where statusID = 1");
 
@@ -86,12 +90,12 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
 
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<Campaign> jdbcBatchItemWriter() throws Exception {
+    public JdbcBatchItemWriter<Campaign> jdbcBatchItemWriter(){
         JdbcBatchItemWriter<Campaign> itemWriter = new JdbcBatchItemWriter<>();
 
         itemWriter.setDataSource(this.dataSource);
 //        itemWriter.setSql("INSERT INTO CAMPAIGN (name, statusID, startDate, endDate, budget, bid) VALUES (:name, :statusID, :startDate, :endDate, :budget, :bid)");
-        itemWriter.setSql("UPDATE CAMPAIGN SET statusID='0' WHERE id=:id");
+        itemWriter.setSql("UPDATE CAMPAIGN SET statusID='2' WHERE id=:id");
 
         itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
         itemWriter.afterPropertiesSet();
@@ -105,7 +109,7 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
     }
 
     @Bean
-    public Step step1() throws Exception {
+    public Step step1(StepBuilderFactory stepBuilderFactory){
         return stepBuilderFactory.get("step1")
                 .<Campaign, Campaign>chunk(10)
                 .reader(pagingItemReader())
@@ -115,10 +119,10 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
     }
 
     @Bean
-    public Job job() throws Exception {
+    public Job job(JobBuilderFactory jobBuilderFactory){
         return jobBuilderFactory.get("job")
                 .incrementer(new RunIdIncrementer())
-                .start(step1())
+                .start(step1(null))
                 .build();
     }
 
@@ -153,13 +157,13 @@ public class CampaignConfig extends DefaultBatchConfigurer implements Applicatio
     }
 
     @Bean
-    public JobOperator jobOperator() throws Exception {
+    public JobOperator jobOperator(JobLauncher jobLauncher, JobExplorer jobExplorer) throws Exception {
         SimpleJobOperator simpleJobOperator = new SimpleJobOperator();
 
-        simpleJobOperator.setJobLauncher(this.jobLauncher);
+        simpleJobOperator.setJobLauncher(jobLauncher);
         simpleJobOperator.setJobParametersConverter(new DefaultJobParametersConverter());
         simpleJobOperator.setJobRepository(this.jobRepository);
-        simpleJobOperator.setJobExplorer(this.jobExplorer);
+        simpleJobOperator.setJobExplorer(jobExplorer);
         simpleJobOperator.setJobRegistry(this.jobRegistry);
         simpleJobOperator.afterPropertiesSet();
 

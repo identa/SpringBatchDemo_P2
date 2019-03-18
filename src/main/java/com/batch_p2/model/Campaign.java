@@ -9,20 +9,20 @@ public class Campaign {
 
     private int statusID;
 
-    private Date startDate;
+    private Date start_date;
 
-    private Date endDate;
+    private Date end_date;
 
     private double budget;
 
     private double bid;
 
-    public Campaign(int id, String name, int statusID, Date startDate, Date endDate, double budget, double bid) {
+    public Campaign(int id, String name, int statusID, Date start_date, Date end_date, double budget, double bid) {
         this.id = id;
         this.name = name;
         this.statusID = statusID;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.start_date = start_date;
+        this.end_date = end_date;
         this.budget = budget;
         this.bid = bid;
     }
@@ -51,20 +51,20 @@ public class Campaign {
         this.statusID = statusID;
     }
 
-    public Date getStartDate() {
-        return startDate;
+    public Date getStart_date() {
+        return start_date;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Date getEnd_date() {
+        return end_date;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setEnd_date(Date end_date) {
+        this.end_date = end_date;
     }
 
     public double getBudget() {
